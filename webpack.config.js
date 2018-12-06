@@ -1,2 +1,4 @@
 const { buildWebpackConfig } = require('webpack-preset-accurapp')
-module.exports = buildWebpackConfig()
+const typescript = require('webpack-blocks-ts')
+
+module.exports = buildWebpackConfig([typescript({ silent: true })])
