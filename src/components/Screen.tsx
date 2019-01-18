@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { findFriends } from '../lib/utils'
+// import { findFriends } from '../lib/utils'
 
-export class Screen extends React.Component {
+export default class App extends React.Component {
   state = { validAddresses: [] as string[] }
 
   componentDidMount() {
-    findFriends(this.addAddress)
+    // findFriends(this.addAddress)
   }
 
   addAddress = (address: string) =>

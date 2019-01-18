@@ -38,6 +38,7 @@
     "p-map": "^2.0.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
+    "tachyons": "^4.11.1",
     "tachyons-extra": "^1.0.3"
   }
 }

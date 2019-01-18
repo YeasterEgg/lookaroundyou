@@ -4,6 +4,7 @@ import App from 'components/App.tsx'
 import 'modern-normalize'
 import '@accurat/tachyons-lite'
 import 'tachyons-extra'
+import 'tachyons'
 import 'style.css'
 
 function renderApp() {

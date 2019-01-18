@@ -29,7 +29,7 @@ const ping = (url: string): Promise<number> => {
   return Promise.race([imagePromise, timeoutPromise])
 }
 
-const findLocalIp = (): Promise<Array<string>> =>
+export const findLocalIp = (): Promise<string> =>
   new Promise((resolve, reject) => {
     const RTCPeerConnection = get(
       window,
@@ -46,7 +46,7 @@ const findLocalIp = (): Promise<Array<string>> =>
     pc.onicecandidate = (event: any) => {
       if (!event || !event.candidate) {
         if (ips.length == 0) return reject(new Error('No Webrtc'))
-        return resolve(ips)
+        return resolve(ips[0])
       }
       const parts = event.candidate.candidate.split(' ')
       const ip = parts[4]
@@ -62,13 +62,49 @@ const findLocalIp = (): Promise<Array<string>> =>
 //     .join('.')
 // }
 
-export const findFriends = async (handler: (url: string) => void) => {
-  const ips = await findLocalIp()
-  const baseIp = ips[0]
+export const findFriends = (
+  ip: string,
+  start: number,
+  end: number,
+  handler: (url: string) => void,
+) => {
+  const baseIp = ip
     .split('.')
     .slice(0, -1)
     .join('.')
-  const addresses = Array.from({ length: 256 }, (_, idx) => `http://${baseIp}.${idx}:8000`)
+
+  const ports = Array.from({ length: end - start + 1 }, (_, idx) => start + idx)
+  console.log('ports', ports)
+  let errorsCounter = 0
+  let workingCounter = 0
+  let abortsCounter = 0
+  for (let idx = 0; idx < 255; idx++) {
+    const address = `http://${baseIp}.${idx}`
+    for (let jdx = 0; jdx < ports.length; jdx++) {
+      const port = ports[jdx]
+      const completeAddress = `${address}:${port}`
+      const controller = new AbortController()
+      const signal = controller.signal
+      setTimeout(() => controller.abort(), TIMEOUT)
+      window
+        .fetch(completeAddress, { mode: 'no-cors', signal })
+        .then(response => {
+          console.log(`Yes for ${completeAddress}`)
+          handler(completeAddress)
+          workingCounter++
+        })
+        .catch(err => {
+          if (err.name === 'AbortError') {
+            console.log(`Aborted for ${completeAddress}`)
+            abortsCounter++
+          } else {
+            console.log(`Nope for ${completeAddress}`)
+            errorsCounter++
+          }
+        })
+    }
+  }
+  // const addresses = Array.from({ length: 256 }, (_, idx) => `http://${baseIp}.${idx}:8000`)
   // const iterator = async (address: string) => {
   //   try {
   //     const status = await ping(address)
@@ -80,12 +116,12 @@ export const findFriends = async (handler: (url: string) => void) => {
   // const results = (await pMap(addresses, iterator)) as (0 | string)[]
   // const validAddresses = results.filter(r => r !== 0)
   // console.log('validAddresses', validAddresses)
-  addresses.forEach(async (address: string) => {
-    try {
-      await window.fetch(address, { mode: 'no-cors' })
-      handler(address)
-    } catch (e) {
-      console.log(e)
-    }
-  })
+  // addresses.forEach(async (address: string) => {
+  //   try {
+  //     await window.fetch(address, { mode: 'no-cors' })
+  //     handler(address)
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // })
 }
