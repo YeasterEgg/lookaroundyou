@@ -1,6 +1,6 @@
 import * as React from 'react'
 import Form from './Form'
-import Loading from './Loading'
+import Display from './Display'
 import { findFriends } from '../lib/utils'
 
 export default class App extends React.Component {
@@ -27,19 +27,18 @@ export default class App extends React.Component {
 
   render() {
     const { loading, workingIps } = this.state
-    const Body = loading ? (
-      <div>
-        {workingIps.map(c => (
-          <div>{c}</div>
-        ))}
-      </div>
-    ) : (
-      <Form handleSubmit={this.startSearching} />
-    )
     return (
-      <div className="w-100 h-100 flex items-center justify-center relative">
-        <div className="absolute f2 top-1 w-100 tc">Look Around You</div>
-        <div className="w-100 flex justify-center">{Body}</div>
+      <div className="w-100 h-100 flex flex-column justify-center relative">
+        <div className="f2 top-1 w-100 tc h-10 flex items-center justify-center">
+          Look Around You
+        </div>
+        <div className="w-100 flex justify-center items-center h-90">
+          {loading ? (
+            <Display addresses={workingIps} />
+          ) : (
+            <Form handleSubmit={this.startSearching} />
+          )}
+        </div>
       </div>
     )
   }
