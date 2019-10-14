@@ -6,19 +6,18 @@ import { findFriends } from '../lib/utils'
 export default class App extends React.Component {
   state = {
     loading: false,
-    start: 8000,
-    end: 8000,
+    port: 8000,
     localIp: '',
     workingIps: [] as string[],
   }
 
-  startSearching = (start: number, end: number, localIp: string) => {
-    this.setState({ loading: true, start, end, localIp }, this.startScanning)
+  startSearching = (port: number, localIp: string) => {
+    this.setState({ loading: true, port, localIp }, this.startScanning)
   }
 
   startScanning = () => {
-    const { localIp, start, end } = this.state
-    findFriends(localIp, start, end, this.workingIpHandler)
+    const { localIp, port } = this.state
+    findFriends(localIp, port, this.workingIpHandler)
   }
 
   workingIpHandler = (ip: string) => {

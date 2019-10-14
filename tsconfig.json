@@ -17,11 +17,8 @@
     "strictNullChecks": false,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": false,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "skipLibCheck": true
   },
-  "exclude": [
-    "node_modules",
-    "build",
-    "webpack.config.js"
-  ]
+  "exclude": ["node_modules", "build", "webpack.config.js"]
 }
