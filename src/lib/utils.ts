@@ -1,7 +1,14 @@
 const TIMEOUT = 2000
 
+function validateIp(ip: string): boolean {
+  const parts = ip.split('.').map(p => parseInt(p))
+  if (parts.length !== 4) return false
+  return parts.every(p => !isNaN(p) && p >= 0 && p <= 255)
+}
+
 export const findLocalIp = (): Promise<string> =>
   new Promise((resolve, reject) => {
+    setTimeout(reject, 2000)
     const RTCPeerConnection =
       window['RTCPeerConnection'] ||
       window['mozRTCPeerConnection'] ||
@@ -22,7 +29,8 @@ export const findLocalIp = (): Promise<string> =>
       }
       const parts = event.candidate.candidate.split(' ')
       const ip = parts[4]
-      if (!ips.includes(ip)) ips.push(ip)
+      const isIpValid = validateIp(ip)
+      if (!ips.includes(ip) && isIpValid) ips.push(ip)
     }
   })
 

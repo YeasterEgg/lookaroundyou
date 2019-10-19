@@ -1,18 +1,47 @@
 import * as React from 'react'
 import { findLocalIp } from '../lib/utils'
 
-const MAX_PORTS = 5
-
-type FormProps = {
+interface FormProps {
   handleSubmit: (port: number, localIp: string) => void
 }
 
+interface ErrorProps {
+  onSubmit: (text: string) => void
+}
+
+function Error(props: ErrorProps) {
+  const [textInput, setInput] = React.useState('')
+  const onInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value)
+  }
+
+  const onSubmit = () => props.onSubmit(textInput)
+
+  return (
+    <div className="absolute absolute--fill o-60 bg-white flex items-center justify-center">
+      <div className="w-60 tc">
+        <div className="f2">Your browser does not support local IP scan.</div>
+        <div className="pv3 f3">
+          Either insert it here:
+          <form onSubmit={onSubmit}>
+            <input type="text" onInput={onInput} />
+          </form>
+        </div>
+        <div className="f3">
+          or change the flag `enable-webrtc-hide-local-ips-with-mdns` and reload.
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default class Form extends React.Component<FormProps> {
-  state = { port: 8000, localIp: '' }
+  state = { port: 8000, localIp: '', error: false }
 
   async componentDidMount() {
-    const localIp = await findLocalIp()
-    this.setState({ localIp })
+    findLocalIp()
+      .then(localIp => this.setState({ localIp }))
+      .catch(err => this.setState({ error: true }))
   }
 
   handlePort = (e: React.FormEvent<HTMLInputElement>) => {
@@ -25,8 +54,13 @@ export default class Form extends React.Component<FormProps> {
     this.props.handleSubmit(port, localIp)
   }
 
+  handleManualInsert = (localIp: string) => {
+    this.setState({ localIp, error: true })
+  }
+
   render() {
-    const { port, localIp } = this.state
+    const { port, localIp, error } = this.state
+    if (error) return <Error onSubmit={this.handleManualInsert} />
     return (
       <div>
         <div className="f3 tc pb3">Your local IP is: {localIp}</div>
